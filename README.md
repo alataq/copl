@@ -178,3 +178,11 @@ bun test
 bun x tsc --noEmit
 make check
 ```
+
+## Contributing
+
+See `CONTRIBUTING.md`.
+
+## License
+
+Apache License 2.0. See `LICENSE`.

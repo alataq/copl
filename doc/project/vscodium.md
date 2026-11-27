@@ -9,7 +9,7 @@ editors/vscodium/
 Installed extension ID:
 
 ```text
-local.copl-vscode@0.1.3
+local.copl-vscode@0.1.4
 ```
 
 It launches:
@@ -24,7 +24,7 @@ It launches:
 cd editors/vscodium
 npm install --omit=dev --no-audit --no-fund
 npx --yes @vscode/vsce package --allow-missing-repository
-codium --install-extension copl-vscode-0.1.3.vsix --force
+codium --install-extension copl-vscode-0.1.4.vsix --force
 ```
 
 ## Use

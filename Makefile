@@ -69,6 +69,7 @@ dist-stage: build
 	cp -R modules/. $(DIST_ROOT)/share/copl/modules/
 	cp VERSION $(DIST_ROOT)/VERSION
 	cp README.md $(DIST_ROOT)/README.md
+	cp LICENSE $(DIST_ROOT)/LICENSE
 	cp -R doc $(DIST_ROOT)/doc
 	@printf 'COPL %s\nLinux %s\n\nRun: bin/coplc help\n' "$(VERSION)" "$(ARCH)" > $(DIST_ROOT)/BUILD-INFO
 
