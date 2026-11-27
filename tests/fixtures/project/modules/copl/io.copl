@@ -1,0 +1,6 @@
+namespace copl::io {
+  public extern class C {
+    public extern static int puts(char[] text);
+    public extern static int printf(char[] format);
+  }
+}

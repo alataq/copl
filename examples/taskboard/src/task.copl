@@ -1,0 +1,35 @@
+import copl.string;
+
+public class TaskItem {
+    private int id;
+    private std::String title;
+    private int priority;
+    private bool completed;
+
+    public TaskItem(int id, std::String title, int priority) {
+        self.id = id;
+        self.title = title;
+        self.priority = priority;
+        self.completed = false;
+    }
+
+    public int getId() {
+        return self.id;
+    }
+
+    public std::String getTitle() {
+        return self.title;
+    }
+
+    public int getPriority() {
+        return self.priority;
+    }
+
+    public bool isCompleted() {
+        return self.completed;
+    }
+
+    public void complete() {
+        self.completed = true;
+    }
+}

@@ -1,0 +1,11 @@
+v0.2 cleanup work
+
+- Split GC cleanup hooks into two concepts:
+  - __cleanup: live-object compaction/maintenance
+  - __finalize: dead-object teardown
+- Current v0.1 behavior runs __cleanup for both live and dead managed objects.
+- Keep GcProbe finalizer behavior working during the split.
+- Clean up remaining task-dispatch allocations:
+  - copl_task handle lifetime
+  - task result storage lifetime
+  - task argument storage is already freed in the generated thunk

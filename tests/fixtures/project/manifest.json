@@ -1,0 +1,14 @@
+{
+  "name": "fixture",
+  "version": "0.1.0",
+  "defaultEntry": "app",
+  "entryEnvVar": "FIXTURE_ENTRY",
+  "entries": {
+    "app": "src/app.copl",
+    "tool": "src/tool.copl"
+  },
+  "defaultWorkers": 2,
+  "workersEnvVar": "FIXTURE_WORKERS",
+  "linkerFlags": ["-lm"],
+  "cc": "cc"
+}

@@ -1,0 +1,17 @@
+node_modules/
+build/
+dist/
+coverage/
+.cache/
+.vscode/
+.idea/
+*.vsix
+*.tar.gz
+*.tgz
+*.sha256
+*.o
+*.out
+*.dSYM/
+.DS_Store
+.env
+.env.*

@@ -1,0 +1,19 @@
+cinclude "unistd.h";
+
+private extern class Native {
+    public extern static int getpid();
+}
+
+public class Stats {
+    public static int processId() {
+        return Native.getpid();
+    }
+
+    public static int sumPriorities(int count, ...) {
+        int total = 0;
+        for(int i = 0; i < count; i++) {
+            total = total + va_int();
+        }
+        return total;
+    }
+}

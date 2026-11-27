@@ -1,0 +1,204 @@
+import copl.string;
+import copl.io.console;
+import local.task;
+import local.stats;
+
+public interface Command {
+    public bool run(TaskBoard board, std::String input);
+}
+
+public class BaseCommand implements Command {
+    public BaseCommand() {
+    }
+
+    public bool run(TaskBoard board, std::String input) {
+        return true;
+    }
+}
+
+public class AddCommand extends BaseCommand {
+    public AddCommand() {
+        super();
+    }
+
+    public bool run(TaskBoard board, std::String input) {
+        std::String priorityText = TaskBoard.firstToken(input);
+        std::String title = TaskBoard.rest(input);
+        if(priorityText.isEmpty() || title.isEmpty()) {
+            Console.println("usage: add <priority> <title>");
+            return true;
+        }
+        board.addTask(title, priorityText.toInt());
+        Console.printf("added task %d\n", board.getTaskCount());
+        return true;
+    }
+}
+
+public class ListCommand extends BaseCommand {
+    public ListCommand() {
+        super();
+    }
+
+    public bool run(TaskBoard board, std::String input) {
+        int count = board.getTaskCount();
+        if(count == 0) {
+            Console.println("no tasks");
+            return true;
+        }
+        for(int i = 0; i < count; i++) {
+            TaskItem task = board.getTask(i);
+            Console.printf("  %d  p=%d  ", task.getId(), task.getPriority());
+            Console.print(task.getTitle());
+            if(task.isCompleted()) {
+                Console.println("  [done]");
+            } else {
+                Console.println("  [open]");
+            }
+        }
+        return true;
+    }
+}
+
+public class DoneCommand extends BaseCommand {
+    public DoneCommand() {
+        super();
+    }
+
+    public bool run(TaskBoard board, std::String input) {
+        std::String idText = TaskBoard.firstToken(input);
+        if(idText.isEmpty()) {
+            Console.println("usage: done <id>");
+            return true;
+        }
+        if(board.completeTask(idText.toInt())) {
+            Console.println("task completed");
+        } else {
+            Console.println("task not found");
+        }
+        return true;
+    }
+}
+
+public class RemoveCommand extends BaseCommand {
+    public RemoveCommand() {
+        super();
+    }
+
+    public bool run(TaskBoard board, std::String input) {
+        std::String idText = TaskBoard.firstToken(input);
+        if(idText.isEmpty()) {
+            Console.println("usage: remove <id>");
+            return true;
+        }
+        if(board.removeTask(idText.toInt())) {
+            Console.println("task removed");
+        } else {
+            Console.println("task not found");
+        }
+        return true;
+    }
+}
+
+public class StatsCommand extends BaseCommand {
+    public StatsCommand() {
+        super();
+    }
+
+    public bool run(TaskBoard board, std::String input) {
+        int count = board.getTaskCount();
+        int total = 0;
+        if(count == 0) {
+            Console.println("priority total=0");
+        } else if(count == 1) {
+            total = Stats.sumPriorities(1, board.getTask(0).getPriority());
+            Console.printf("priority total=%d\n", total);
+        } else if(count == 2) {
+            total = Stats.sumPriorities(
+                2,
+                board.getTask(0).getPriority(),
+                board.getTask(1).getPriority()
+            );
+            Console.printf("priority total=%d\n", total);
+        } else {
+            total = Stats.sumPriorities(
+                3,
+                board.getTask(0).getPriority(),
+                board.getTask(1).getPriority(),
+                board.getTask(2).getPriority()
+            );
+            Console.printf("priority total=%d\n", total);
+        }
+        Console.printf("process id=%d\n", Stats.processId());
+        return true;
+    }
+}
+
+public class WorkerCommand extends BaseCommand {
+    public WorkerCommand() {
+        super();
+    }
+
+    public bool run(TaskBoard board, std::String input) {
+        int score = board.runBackgroundScore(21);
+        Console.printf("worker score=%d\n", score);
+        return true;
+    }
+}
+
+public class GcProbe {
+    private static bool reported;
+
+    public GcProbe() {
+    }
+
+    internal void __cleanup() {
+        if(!GcProbe.reported) {
+            GcProbe.reported = true;
+            Console.println("__cleanup triggered by GC");
+        }
+    }
+}
+
+public class GcCommand extends BaseCommand {
+    public GcCommand() {
+        super();
+    }
+
+    public bool run(TaskBoard board, std::String input) {
+        for(int i = 0; i < 1300; i++) {
+            GcProbe probe = new GcProbe();
+        }
+        Console.println("gc stress complete");
+        return true;
+    }
+}
+
+public class HelpCommand extends BaseCommand {
+    public HelpCommand() {
+        super();
+    }
+
+    public bool run(TaskBoard board, std::String input) {
+        Console.println("commands:");
+        Console.println("  add <priority> <title>");
+        Console.println("  list");
+        Console.println("  done <id>");
+        Console.println("  remove <id>");
+        Console.println("  stats");
+        Console.println("  worker");
+        Console.println("  gc");
+        Console.println("  help");
+        Console.println("  exit");
+        return true;
+    }
+}
+
+public class ExitCommand extends BaseCommand {
+    public ExitCommand() {
+        super();
+    }
+
+    public bool run(TaskBoard board, std::String input) {
+        return false;
+    }
+}

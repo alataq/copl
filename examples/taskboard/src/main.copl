@@ -1,0 +1,170 @@
+import copl.string;
+import copl.io.console;
+import copl.vector;
+import local.task;
+import local.repository;
+import local.commands;
+import local.stats;
+
+public class TaskBoard {
+    private Repository<TaskItem> tasks;
+    private std::Vector<Command> commands;
+    private int nextId;
+
+    public TaskBoard() {
+        self.tasks = new Repository<TaskItem>();
+        self.commands = new std::Vector<Command>();
+        self.nextId = 1;
+        self.commands.add(new AddCommand());
+        self.commands.add(new ListCommand());
+        self.commands.add(new DoneCommand());
+        self.commands.add(new RemoveCommand());
+        self.commands.add(new StatsCommand());
+        self.commands.add(new WorkerCommand());
+        self.commands.add(new GcCommand());
+        self.commands.add(new HelpCommand());
+        self.commands.add(new ExitCommand());
+    }
+
+    public static std::String firstToken(std::String value) {
+        char[] chars = value.toArray();
+        for(int i = 0; i < chars.len; i++) {
+            if(chars[i] == ' ') {
+                return value.substring(0, i);
+            }
+        }
+        return value;
+    }
+
+    public static std::String rest(std::String value) {
+        char[] chars = value.toArray();
+        for(int i = 0; i < chars.len; i++) {
+            if(chars[i] == ' ') {
+                int start = i;
+                while(start < chars.len && chars[start] == ' ') {
+                    start++;
+                }
+                return value.substring(start, chars.len);
+            }
+        }
+        return new std::String();
+    }
+
+    public void addTask(std::String title, int priority) {
+        self.tasks.add(new TaskItem(self.nextId, title, priority));
+        self.nextId++;
+    }
+
+    public int getTaskCount() {
+        return self.tasks.getLength();
+    }
+
+    public TaskItem getTask(int index) {
+        return self.tasks.get(index);
+    }
+
+    public bool completeTask(int id) {
+        for(int i = 0; i < self.tasks.getLength(); i++) {
+            TaskItem task = self.tasks.get(i);
+            if(task.getId() == id) {
+                task.complete();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public bool removeTask(int id) {
+        for(int i = 0; i < self.tasks.getLength(); i++) {
+            if(self.tasks.get(i).getId() == id) {
+                return self.tasks.removeAt(i);
+            }
+        }
+        return false;
+    }
+
+    public int runBackgroundScore(int value) {
+        Task<int> job = &backgroundScore(value);
+        while(! &job) {
+        }
+        int result = job;
+        return result;
+    }
+
+    private int backgroundScore(int value) {
+        return value * 2;
+    }
+
+    public int run(int[] args) {
+        $TASKBOARD_DATA = "tasks.txt";
+        Console.println("TaskBoard");
+        Console.print("data: ");
+        Console.println(env("TASKBOARD_DATA"));
+        Console.printf("pid=%d\n", Stats.processId());
+        Console.println("type 'help' for commands");
+
+        for(;;) {
+            Console.print("> ");
+            Console.flush();
+            std::String? maybe = Console.readLine();
+            if(maybe != null) {
+                if(!maybe.isEmpty()) {
+                    std::String name = TaskBoard.firstToken(maybe);
+                    std::String input = TaskBoard.rest(maybe);
+                    if(name.equals("add")) {
+                        if(!self.commands.get(0).run(self, input)) {
+                            return 0;
+                        }
+                    } else if(name.equals("list")) {
+                        if(!self.commands.get(1).run(self, input)) {
+                            return 0;
+                        }
+                    } else if(name.equals("done")) {
+                        if(!self.commands.get(2).run(self, input)) {
+                            return 0;
+                        }
+                    } else if(name.equals("remove")) {
+                        if(!self.commands.get(3).run(self, input)) {
+                            return 0;
+                        }
+                    } else if(name.equals("stats")) {
+                        if(!self.commands.get(4).run(self, input)) {
+                            return 0;
+                        }
+                    } else if(name.equals("worker")) {
+                        if(!self.commands.get(5).run(self, input)) {
+                            return 0;
+                        }
+                    } else if(name.equals("gc")) {
+                        if(!self.commands.get(6).run(self, input)) {
+                            return 0;
+                        }
+                    } else if(name.equals("help")) {
+                        if(!self.commands.get(7).run(self, input)) {
+                            return 0;
+                        }
+                    } else if(name.equals("exit")) {
+                        return 0;
+                    } else {
+                        Console.println("unknown command");
+                    }
+                }
+            } else {
+                return 0;
+            }
+        }
+        return 0;
+    }
+}
+
+public class App {
+    private TaskBoard board;
+
+    public App() {
+        self.board = new TaskBoard();
+    }
+
+    public int run(int[] args) {
+        return self.board.run(args);
+    }
+}

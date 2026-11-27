@@ -1,0 +1,82 @@
+namespace std {
+    public class Vector<t> {
+        private t[] data;
+        private bool[] occupied;
+        private int length;
+        private int capacity;
+        private bool needGC;
+        
+        public Vector(){
+            t[64] data = [...0];
+            self.data = data;
+            bool[64] occupied = [...0];
+            self.occupied = occupied;
+            self.length = 0;
+            self.capacity = 64;
+            self.needGC = false;
+        }
+
+        public Vector(Vector vector){
+            self = copy(vector);
+        }
+
+        public add(t variable){
+            if(self.length == self.capacity){
+                t[self.capacity * 2] data = [self.data, ...0];
+                self.data = data;
+                bool[self.capacity * 2] occupied = [self.occupied, ...0];
+                self.occupied = occupied;
+                self.capacity*=2;
+            }
+
+            self.data[self.length] = variable;
+            self.occupied[self.length] = true;
+            self.length++;
+        }
+
+        public bool remove(t variable){
+            for(int i = 0; i < self.length; i++){
+                if(!self.occupied[i])continue;
+                if(self.data[i] != variable)continue;
+
+                self.occupied[i] = false;
+                self.needGC = true;
+                return true;
+            }
+            return false;
+        }
+
+        public int getLength(){
+            return self.length;
+        }
+
+        public t get(int index){
+            return self.data[index];
+        }
+
+        public t[] toArray(){
+            t[self.length] result = [...0];
+            for(int i = 0; i < self.length; i++){
+                result[i] = self.data[i];
+            }
+            return result;
+        }
+
+        internal __cleanup(){
+            if(!self.needGC)return;
+
+            int write = 0;
+            for(int read = 0; read < self.length; read++){
+                if(!self.occupied[read])continue;
+                self.data[write] = self.data[read];
+                self.occupied[write] = true;
+                write++;
+            }
+            for(int i = write; i < self.length; i++){
+                self.occupied[i] = false;
+            }
+            self.length = write;
+            self.needGC = false;
+        }
+    }
+}

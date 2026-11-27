@@ -1,0 +1,140 @@
+import copl.string;
+
+cinclude "stdio.h";
+
+cinline {
+    static void copl_io_write(const char* data, int64_t length) {
+        fwrite(data, 1, (size_t)length, stdout);
+    }
+
+    static void copl_io_putchar(int64_t value) {
+        fputc((int)value, stdout);
+    }
+
+    static void copl_io_newline(void) {
+        fputc('\n', stdout);
+    }
+
+    static void copl_io_flush(void) {
+        fflush(stdout);
+    }
+
+    static void copl_io_clear(void) {
+        fputs("\033[2J\033[H", stdout);
+        fflush(stdout);
+    }
+
+    static int64_t copl_io_read_char(void) {
+        return (int64_t)getchar();
+    }
+}
+
+namespace io {
+    private extern class C {
+        public extern static void copl_io_write(char[] data, int length);
+        public extern static void copl_io_putchar(int value);
+        public extern static void copl_io_newline();
+        public extern static void copl_io_flush();
+        public extern static void copl_io_clear();
+        public extern static int copl_io_read_char();
+    }
+
+    public class Console {
+        public static void print(char value) {
+            C.copl_io_putchar(int(value));
+        }
+
+        public static void print(char[] text) {
+            C.copl_io_write(text, text.len);
+        }
+
+        public static void print(std::String text) {
+            Console.print(text.toArray());
+        }
+
+        public static void println() {
+            C.copl_io_newline();
+        }
+
+        public static void println(char value) {
+            Console.print(value);
+            Console.println();
+        }
+
+        public static void println(char[] text) {
+            Console.print(text);
+            Console.println();
+        }
+
+        public static void println(std::String text) {
+            Console.print(text);
+            Console.println();
+        }
+
+        public static void flush() {
+            C.copl_io_flush();
+        }
+
+        public static void clear() {
+            C.copl_io_clear();
+        }
+
+        public static void printf(char[] format, ...) {
+            for(int i = 0; i < format.len; i++) {
+                if(format[i] != '%') {
+                    Console.print(format[i]);
+                    continue;
+                }
+                if(i + 1 >= format.len) {
+                    Console.print('%');
+                    continue;
+                }
+                char spec = format[i + 1];
+                i++;
+                if(spec == '%') {
+                    Console.print('%');
+                } else if(spec == 'd') {
+                    Console.print(String.format("%d", va_int()));
+                } else if(spec == 'u') {
+                    Console.print(String.format("%u", va_uint()));
+                } else if(spec == 'f') {
+                    Console.print(String.format("%f", va_float()));
+                } else if(spec == 'c') {
+                    Console.print(va_char());
+                } else if(spec == 'b') {
+                    Console.print(String.format("%b", va_bool()));
+                } else if(spec == 's') {
+                    Console.print(String.format("%s", va_char_array()));
+                } else {
+                    Console.print('%');
+                    Console.print(spec);
+                }
+            }
+        }
+
+        public static int read() {
+            return C.copl_io_read_char();
+        }
+
+        public static std::String? readLine() {
+            std::Vector<char> buffer = new std::Vector<char>();
+            for(;;) {
+                int value = Console.read();
+                if(value == -1) {
+                    if(buffer.getLength() == 0) {
+                        return null;
+                    }
+                    break;
+                }
+                if(value == 10) {
+                    break;
+                }
+                if(value == 13) {
+                    continue;
+                }
+                buffer.add(char(value));
+            }
+            return new std::String(buffer.toArray());
+        }
+    }
+}

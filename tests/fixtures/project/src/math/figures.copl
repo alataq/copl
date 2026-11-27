@@ -1,0 +1,25 @@
+namespace math {
+  public class Figure {
+    protected int sides;
+    public Figure(int sides) {
+      self.sides = sides;
+    }
+    public int getSides() {
+      return self.sides;
+    }
+  }
+
+  public interface Shape {
+    public float area();
+  }
+
+  public class Circle implements Shape {
+    private float radius;
+    public Circle(float radius) {
+      self.radius = radius;
+    }
+    public float area() {
+      return 3.14 * self.radius * self.radius;
+    }
+  }
+}

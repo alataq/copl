@@ -1,0 +1,12 @@
+{
+  "name": "taskboard",
+  "version": "0.1.0",
+  "defaultEntry": "app",
+  "entries": {
+    "app": "src/main.copl"
+  },
+  "defaultWorkers": 2,
+  "workersEnvVar": "TASKBOARD_WORKERS",
+  "linkerFlags": [],
+  "cc": "cc"
+}

@@ -1,0 +1,287 @@
+import copl.vector;
+
+namespace std {
+    public class String {
+        private std::Vector<char> content;
+
+        public String() {
+            self.content = new std::Vector<char>();
+        }
+
+        public String(char[] value) {
+            self.content = new std::Vector<char>();
+            for(int i = 0; i < value.len; i++) {
+                self.content.add(value[i]);
+            }
+        }
+
+        public String(char value) {
+            self.content = new std::Vector<char>();
+            self.content.add(value);
+        }
+
+        public String(String other) {
+            self = copy(other);
+        }
+
+        public int getLength() {
+            return self.content.getLength();
+        }
+
+        public bool isEmpty() {
+            return self.getLength() == 0;
+        }
+
+        public char charAt(int index) {
+            return self.content.get(index);
+        }
+
+        public char[] toArray() {
+            return self.content.toArray();
+        }
+
+        public bool equals(char value) {
+            if(self.getLength() != 1) {
+                return false;
+            }
+            return self.charAt(0) == value;
+        }
+
+        public bool equals(char[] value) {
+            if(self.getLength() != value.len) {
+                return false;
+            }
+            for(int i = 0; i < value.len; i++) {
+                if(self.charAt(i) != value[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public bool equals(String other) {
+            if(self.getLength() != other.getLength()) {
+                return false;
+            }
+            for(int i = 0; i < self.getLength(); i++) {
+                if(self.charAt(i) != other.charAt(i)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public String concat(char value) {
+            String result = new String(self);
+            result.content.add(value);
+            return result;
+        }
+
+        public String concat(char[] value) {
+            String result = new String(self);
+            for(int i = 0; i < value.len; i++) {
+                result.content.add(value[i]);
+            }
+            return result;
+        }
+
+        public String concat(String value) {
+            String result = new String(self);
+            for(int i = 0; i < value.getLength(); i++) {
+                result.content.add(value.charAt(i));
+            }
+            return result;
+        }
+
+        public String substring(int start, int end) {
+            String result = new String();
+            for(int i = start; i < end; i++) {
+                result.content.add(self.charAt(i));
+            }
+            return result;
+        }
+
+        public int toInt() {
+            int length = self.getLength();
+            if(length == 0) {
+                return 0;
+            }
+            int index = 0;
+            bool negative = false;
+            if(self.charAt(0) == '-') {
+                negative = true;
+                index = 1;
+            } else if(self.charAt(0) == '+') {
+                index = 1;
+            }
+            if(index >= length) {
+                return 0;
+            }
+            int value = 0;
+            for(int i = index; i < length; i++) {
+                char current = self.charAt(i);
+                if(current < '0' || current > '9') {
+                    return 0;
+                }
+                value = value * 10 + int(current - '0');
+            }
+            if(negative) {
+                return -value;
+            }
+            return value;
+        }
+
+        public float toFloat() {
+            int length = self.getLength();
+            if(length == 0) {
+                return 0.0;
+            }
+            int index = 0;
+            bool negative = false;
+            if(self.charAt(0) == '-') {
+                negative = true;
+                index = 1;
+            } else if(self.charAt(0) == '+') {
+                index = 1;
+            }
+            float value = 0.0;
+            bool seen = false;
+            while(index < length) {
+                char current = self.charAt(index);
+                if(current < '0' || current > '9') {
+                    break;
+                }
+                value = value * 10.0 + float(int(current - '0'));
+                seen = true;
+                index++;
+            }
+            if(index < length && self.charAt(index) == '.') {
+                index++;
+                float place = 0.1;
+                while(index < length) {
+                    char current = self.charAt(index);
+                    if(current < '0' || current > '9') {
+                        break;
+                    }
+                    value = value + float(int(current - '0')) * place;
+                    place = place * 0.1;
+                    seen = true;
+                    index++;
+                }
+            }
+            if(!seen || index != length) {
+                return 0.0;
+            }
+            if(negative) {
+                return -value;
+            }
+            return value;
+        }
+
+        public static String format(char[] format, ...) {
+            String result = new String();
+            for(int i = 0; i < format.len; i++) {
+                if(format[i] != '%') {
+                    result.content.add(format[i]);
+                    continue;
+                }
+                if(i + 1 >= format.len) {
+                    result.content.add('%');
+                    continue;
+                }
+                char spec = format[i + 1];
+                i++;
+                if(spec == '%') {
+                    result.content.add('%');
+                } else if(spec == 'd') {
+                    String.appendText(result, String.intToString(va_int()));
+                } else if(spec == 'u') {
+                    String.appendText(result, String.uintToString(va_uint()));
+                } else if(spec == 'f') {
+                    String.appendText(result, String.floatToString(va_float()));
+                } else if(spec == 'c') {
+                    result.content.add(va_char());
+                } else if(spec == 'b') {
+                    String.appendText(result, String.boolToString(va_bool()));
+                } else if(spec == 's') {
+                    String.appendText(result, new String(va_char_array()));
+                } else {
+                    result.content.add('%');
+                    result.content.add(spec);
+                }
+            }
+            return result;
+        }
+
+        private static String intToString(int value) {
+            if(value == 0) {
+                return new String('0');
+            }
+            bool negative = value < 0;
+            if(negative) {
+                value = -value;
+            }
+            String result = new String();
+            while(value > 0) {
+                int digit = value % 10;
+                result = new String(char(48 + digit)).concat(result);
+                value = value / 10;
+            }
+            if(negative) {
+                result = new String('-').concat(result);
+            }
+            return result;
+        }
+
+        private static void appendText(String target, String value) {
+            for(int i = 0; i < value.content.getLength(); i++) {
+                target.content.add(value.content.get(i));
+            }
+        }
+
+        private static String uintToString(uint value) {
+            if(value == 0) {
+                return new String('0');
+            }
+            String result = new String();
+            while(value > 0) {
+                uint digit = value % 10;
+                result = new String(char(48 + int(digit))).concat(result);
+                value = value / 10;
+            }
+            return result;
+        }
+
+        private static String floatToString(float value) {
+            if(value == 0.0) {
+                return new String("0.000000");
+            }
+            bool negative = value < 0.0;
+            if(negative) {
+                value = -value;
+            }
+            int whole = int(value);
+            float fraction = value - float(whole);
+            String result = String.intToString(whole);
+            result = result.concat('.');
+            for(int i = 0; i < 6; i++) {
+                fraction = fraction * 10.0;
+                int digit = int(fraction);
+                result = result.concat(char(48 + digit));
+                fraction = fraction - float(digit);
+            }
+            if(negative) {
+                result = new String('-').concat(result);
+            }
+            return result;
+        }
+
+        private static String boolToString(bool value) {
+            if(value) {
+                return new String("true");
+            }
+            return new String("false");
+        }
+
+    }
+}
